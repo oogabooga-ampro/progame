@@ -1,4 +1,5 @@
-/* Reset margins and paddings */
+  color: black;
+}/* Reset margins and paddings */
 * {
   margin: 0;
   padding: 0;
@@ -20,7 +21,11 @@ body {
   width: 100%;
   height: 100%;
   background: lavender;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 /* Player: a red circle */
 #player {
   position: absolute;
@@ -28,9 +33,9 @@ body {
   height: 50px;
   background-color: mediumpurple;
   border-radius: 50%;
-  left: 50%;
-  top: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Added shadow for depth */
+  transition: transform 0.1s ease-out; /* Smooth movement transition */
 }
 
 /* Joystick container fixed at bottom-left */
@@ -50,6 +55,7 @@ body {
   height: 100%;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Added shadow for depth */
 }
 
 /* Joystick stick (the inner movable part) */
@@ -64,9 +70,39 @@ body {
   transform: translate(-50%, -50%);
   touch-action: none; /* Prevent default touch gestures */
   pointer-events: all; /* Allow interaction */
+  transition: transform 0.1s ease-out; /* Smooth joystick movement */
 }
 
-#guidetext{
+/* Guide text */
+#guidetext {
   font-size: 20px;
   color: black;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 10; /* Ensure it's above the game area */
+}
+
+/* Responsive Design for small screens */
+@media (max-width: 480px) {
+  #joystickContainer {
+    width: 100px;
+    height: 100px;
+  }
+
+  #joystickBase {
+    width: 100%;
+    height: 100%;
+  }
+
+  #joystickStick {
+    width: 40px;
+    height: 40px;
+  }
+
+  #guidetext {
+    font-size: 18px;
+  }
 }

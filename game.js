@@ -1,5 +1,4 @@
-  document.addEventListener("keydown", onKeyDown);
-}// Device detection using userAgent
+// Device detection using userAgent
 function isMobileDevice() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
@@ -86,6 +85,7 @@ function onPointerMove(e) {
   const offsetX = Math.cos(angle) * distance;
   const offsetY = Math.sin(angle) * distance;
   
+  // Correct the style values by using template literals
   joystickStick.style.left = `calc(50% + ${offsetX}px)`;
   joystickStick.style.top = `calc(50% + ${offsetY}px)`;
   
@@ -154,19 +154,19 @@ if (!isMobileDevice()) {
   document.addEventListener("contextmenu", function(e) {
     e.preventDefault();
   }, false);
-
+  
   // Block common DevTools key combinations
   document.addEventListener("keydown", function(e) {
     // F12
     if (e.key === "F12" || e.keyCode === 123) {
       e.preventDefault();
-      alert("yu lochitikz gez bette");
+      alert("yu lochitikz giv robuc");
     }
     // Ctrl+Shift+I, Ctrl+Shift+J, or Ctrl+U
     if ((e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
-        (e.ctrlKey && e.key === "U")) {
+      (e.ctrlKey && e.key === "U")) {
       e.preventDefault();
-      alert("yu lochitikz gez bette");
+      alert("yu lochitikz giv robuc");
     }
   }, true); // Capture events in the capturing phase
 })();
