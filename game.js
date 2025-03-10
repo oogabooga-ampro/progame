@@ -1,4 +1,5 @@
-// Device detection using userAgent
+  document.addEventListener("keydown", onKeyDown);
+}// Device detection using userAgent
 function isMobileDevice() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
@@ -145,3 +146,27 @@ if (!isMobileDevice()) {
   joystickContainer.style.display = "none";
   document.addEventListener("keydown", onKeyDown);
 }
+
+// --- Anti-DevTools Code ---
+// This section prevents right-click and common DevTools shortcuts
+(function() {
+  // Disable right-click
+  document.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+  }, false);
+
+  // Block common DevTools key combinations
+  document.addEventListener("keydown", function(e) {
+    // F12
+    if (e.key === "F12" || e.keyCode === 123) {
+      e.preventDefault();
+      alert("yu lochitikz gez bette");
+    }
+    // Ctrl+Shift+I, Ctrl+Shift+J, or Ctrl+U
+    if ((e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+        (e.ctrlKey && e.key === "U")) {
+      e.preventDefault();
+      alert("yu lochitikz gez bette");
+    }
+  }, true); // Capture events in the capturing phase
+})();
