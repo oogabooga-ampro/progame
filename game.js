@@ -11,43 +11,92 @@ const joystickBase = document.getElementById("joystickBase");
 const joystickStick = document.getElementById("joystickStick");
 const scoreDisplay = document.getElementById("scoreDisplay");
 
-// Joystick configuration
+// --- Music Setup ---
+const music = new Audio("audio/Cloud Dancer.mp3"); // Ensure this path is correct
+music.loop = true;
+music.volume = 0.5;
+
+// Create a button to control music (play/pause)
+const musicButton = document.createElement("button");
+musicButton.id = "musicButton";
+musicButton.innerHTML = "🔊"; // Default icon for music playing
+musicButton.style.position = "fixed";
+musicButton.style.bottom = "20px";
+musicButton.style.right = "20px";
+musicButton.style.backgroundColor = "transparent";
+musicButton.style.border = "none";
+musicButton.style.fontSize = "30px";
+musicButton.style.cursor = "pointer";
+musicButton.style.zIndex = "10";
+document.body.appendChild(musicButton);
+
+let isMusicPlaying = false;
+function toggleMusic() {
+  if (isMusicPlaying) {
+    music.pause();
+    musicButton.innerHTML = "🔇"; // Mute icon
+  } else {
+    music.play();
+    musicButton.innerHTML = "🔊"; // Unmute icon
+  }
+  isMusicPlaying = !isMusicPlaying;
+}
+musicButton.addEventListener("click", toggleMusic);
+
+// --- Start Screen Logic ---
+// (Assumes your HTML includes a start screen with id="startScreen" and a button with id="startButton")
+const startScreen = document.getElementById("startScreen");
+const startButton = document.getElementById("startButton");
+startButton.addEventListener("click", startGame);
+
+function startGame() {
+  // Hide the start screen
+  startScreen.style.display = "none";
+  // Show game area and player
+  gameArea.style.display = "block";
+  gameArea.style.opacity = "1"; // Make the game area visible
+  player.style.display = "block";
+  // Start music on game start
+  music.play().catch((error) => console.log("Autoplay blocked:", error));
+  isMusicPlaying = true;
+  // Center the player now that the game area is visible
+  updatePlayerPosition();
+  // Start the game loop
+  requestAnimationFrame(gameLoop);
+}
+
+// --- Game Logic and Joystick Controls ---
 const maxRadius = 50; // Maximum displacement from center
 let joystickCenter = { x: 0, y: 0 };
 let joystickOutput = { x: 0, y: 0 };
 
-// Player position and speed
-let playerPos = {
-  x: gameArea.clientWidth / 2,
-  y: gameArea.clientHeight / 2
-};
+let playerPos = { x: gameArea.clientWidth / 2, y: gameArea.clientHeight / 2 };
 const playerSpeed = 4; // Adjust for desired speed
-
-// Score variable
 let score = 0;
 
-// Update joystick center (using joystickBase's bounding rect)
-function updateJoystickCenter() {
-  const rect = joystickBase.getBoundingClientRect();
-  joystickCenter = {
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2,
-  };
+function updatePlayerPosition() {
+  // Center the player in the game area
+  playerPos.x = gameArea.clientWidth / 2 - player.clientWidth / 2;
+  playerPos.y = gameArea.clientHeight / 2 - player.clientHeight / 2;
+  player.style.left = playerPos.x + "px";
+  player.style.top = playerPos.y + "px";
 }
 
-// Reset joystick stick to center position
+function updateJoystickCenter() {
+  const rect = joystickBase.getBoundingClientRect();
+  joystickCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+
 function resetJoystick() {
   joystickStick.style.left = "50%";
   joystickStick.style.top = "50%";
   joystickOutput = { x: 0, y: 0 };
 }
 
-// Update player position based on joystickOutput
 function updatePlayer() {
   playerPos.x += joystickOutput.x * playerSpeed;
   playerPos.y += joystickOutput.y * playerSpeed;
   
-  // Clamp player position to game area
   const areaWidth = gameArea.clientWidth;
   const areaHeight = gameArea.clientHeight;
   playerPos.x = Math.max(0, Math.min(areaWidth - player.clientWidth, playerPos.x));
@@ -57,7 +106,6 @@ function updatePlayer() {
   player.style.top = playerPos.y + "px";
 }
 
-// Main game loop (only updates player and checks collisions)
 function gameLoop() {
   updatePlayer();
   checkCollisions();
@@ -88,15 +136,10 @@ function onPointerMove(e) {
   const offsetX = Math.cos(angle) * distance;
   const offsetY = Math.sin(angle) * distance;
   
-  // Update joystick stick position using CSS calc()
   joystickStick.style.left = `calc(50% + ${offsetX}px)`;
   joystickStick.style.top = `calc(50% + ${offsetY}px)`;
   
-  // Normalize the joystick output
-  joystickOutput = {
-    x: offsetX / maxRadius,
-    y: offsetY / maxRadius
-  };
+  joystickOutput = { x: offsetX / maxRadius, y: offsetY / maxRadius };
 }
 
 function onPointerUp(e) {
@@ -112,7 +155,6 @@ joystickStick.addEventListener("pointermove", onPointerMove);
 joystickStick.addEventListener("pointerup", onPointerUp);
 joystickStick.addEventListener("pointercancel", onPointerUp);
 
-// Prevent default touchmove on joystick container
 joystickContainer.addEventListener("touchmove", function(e) {
   e.preventDefault();
 }, { passive: false });
@@ -138,7 +180,6 @@ function onKeyDown(e) {
   player.style.top = playerPos.y + "px";
 }
 
-// For desktop, hide joystick and use keyboard
 if (!isMobileDevice()) {
   joystickContainer.style.display = "none";
   document.addEventListener("keydown", onKeyDown);
@@ -146,38 +187,41 @@ if (!isMobileDevice()) {
 
 // --- Enemy Spawning ---
 let enemyCount = 0;
-const maxEnemies = 15; // Maximum number of enemies on screen
+const maxEnemies = 15;
 
 function spawnEnemy() {
   if (enemyCount < maxEnemies) {
+    const isBonus = Math.random() < 0.25;
     const enemy = document.createElement("div");
-    enemy.classList.add("enemy");
-    enemy.style.width = "40px";
-    enemy.style.height = "40px";
-    enemy.style.backgroundColor = "red";
+    if (isBonus) {
+      enemy.classList.add("bonusEnemy");
+      enemy.style.width = "50px";
+      enemy.style.height = "50px";
+    } else {
+      enemy.classList.add("enemy");
+      enemy.style.width = "40px";
+      enemy.style.height = "40px";
+    }
     enemy.style.position = "absolute";
     enemy.style.left = `${Math.random() * (gameArea.clientWidth - 50)}px`;
     enemy.style.top = `${Math.random() * (gameArea.clientHeight - 50)}px`;
     gameArea.appendChild(enemy);
     enemyCount++;
-
-    // Click on enemy to remove and add score
     enemy.addEventListener("click", () => {
       enemy.remove();
-      score++;
+      score += isBonus ? 5 : 1;
       scoreDisplay.textContent = `Score: ${score}`;
       enemyCount--;
     });
   }
 }
-// Spawn enemy every 2 seconds
-setInterval(spawnEnemy, 1000);
+
+setInterval(spawnEnemy, 1200);
 
 // --- Collision Detection ---
 function checkCollisions() {
   const playerRect = player.getBoundingClientRect();
-  const enemies = document.querySelectorAll(".enemy");
-  
+  const enemies = document.querySelectorAll(".enemy, .bonusEnemy");
   enemies.forEach((enemy) => {
     const enemyRect = enemy.getBoundingClientRect();
     if (
@@ -187,9 +231,14 @@ function checkCollisions() {
       playerRect.bottom > enemyRect.top
     ) {
       enemy.remove();
-      score++;
+      score += enemy.classList.contains("bonusEnemy") ? 5 : 1;
       scoreDisplay.textContent = `Score: ${score}`;
       enemyCount--;
     }
   });
 }
+
+// --- Start Music Automatically ---
+// This line will attempt to start music if the game is started via the start screen.
+music.play().catch((error) => console.log("Autoplay blocked:", error));
+isMusicPlaying = true;

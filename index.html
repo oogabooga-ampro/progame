@@ -7,23 +7,30 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <p id="guidetext">Use WASD or arrow keys to move your character, for mobile use joystick</p>
-
+  <!-- Start screen -->
+  <div id="startScreen">
+    <div id="title">Epik Gamz</div>
+    <button id="startButton">Start Game</button>
+  </div>
+  
   <!-- Game area -->
   <div id="gameArea">
     <!-- Player element (a blue circle) -->
     <div id="player"></div>
   </div>
-
+  
   <!-- Score display -->
   <div id="scoreDisplay">Score: 0</div>
-
+  
   <!-- Virtual joystick container -->
   <div id="joystickContainer">
     <div id="joystickBase"></div>
     <div id="joystickStick"></div>
   </div>
-
+  
+  <!-- Guide text -->
+  <p id="guidetext">Use WASD or arrow keys to move your character, for mobile use joystick</p>
+  
   <script src="game.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* Reset margins and paddings */
+/* General reset */
 * {
   margin: 0;
   padding: 0;
@@ -23,6 +23,51 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.5s ease;
+}
+
+/* Start screen styling */
+#startScreen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(10px); /* Blur the background */
+  z-index: 100;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+/* Title text */
+#title {
+  font-size: 50px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+  margin-bottom: 20px;
+}
+
+/* Start button */
+#startButton {
+  font-size: 25px;
+  padding: 15px 30px;
+  background-color: green;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Start button hover effect */
+#startButton:hover {
+  background-color: darkgreen;
 }
 
 /* Player: a blue circle */
@@ -30,11 +75,11 @@ body {
   position: absolute;
   width: 60px;
   height: 60px;
-  background-color: royalblue; /* Changed to blue */
+  background-color: royalblue;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Added shadow for depth */
-  transition: transform 0.1s ease-out; /* Smooth movement transition */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease-out;
 }
 
 /* Enemy: a red square */
@@ -42,8 +87,25 @@ body {
   position: absolute;
   width: 40px;
   height: 40px;
-  background-color: darkred; /* Changed to red */
+  background-color: red;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Bonus Enemy: a green square with pulsing effect */
+.bonusEnemy {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-color: blueviolet;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  animation: pulse 0.8s infinite;
+}
+
+/* Pulsing animation for bonus enemy */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* Joystick container fixed at bottom-left */
@@ -53,7 +115,7 @@ body {
   left: 20px;
   width: 120px;
   height: 120px;
-  pointer-events: none; /* So that only the inner parts capture events */
+  pointer-events: none;
 }
 
 /* Joystick base (the outer circle) */
@@ -63,7 +125,7 @@ body {
   height: 100%;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Added shadow for depth */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Joystick stick (the inner movable part) */
@@ -76,9 +138,9 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  touch-action: none; /* Prevent default touch gestures */
-  pointer-events: all; /* Allow interaction */
-  transition: transform 0.1s ease-out; /* Smooth joystick movement */
+  touch-action: none;
+  pointer-events: all;
+  transition: transform 0.1s ease-out;
 }
 
 /* Guide text */
@@ -92,13 +154,7 @@ body {
   transform: translateX(-50%);
   text-align: center;
   z-index: 10;
-
-  /* Clean black outline effect */
-  text-shadow: 
-    -1px -1px 0 black,  
-     1px -1px 0 black,  
-    -1px  1px 0 black,  
-     1px  1px 0 black;
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
 }
 
 /* Score display */
@@ -110,13 +166,7 @@ body {
   color: white;
   font-weight: bold;
   z-index: 10;
-
-  /* Clean black outline effect */
-  text-shadow: 
-    -2px -2px 0 black,  
-     2px -2px 0 black,  
-    -2px  2px 0 black,  
-     2px  2px 0 black;
+  text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black;
 }
 
 /* Responsive Design for small screens */
@@ -125,17 +175,14 @@ body {
     width: 100px;
     height: 100px;
   }
-
   #joystickBase {
     width: 100%;
     height: 100%;
   }
-
   #joystickStick {
     width: 40px;
     height: 40px;
   }
-
   #guidetext {
     font-size: 18px;
   }
