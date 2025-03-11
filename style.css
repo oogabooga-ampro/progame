@@ -1,5 +1,4 @@
-  color: black;
-}/* Reset margins and paddings */
+/* Reset margins and paddings */
 * {
   margin: 0;
   padding: 0;
@@ -26,16 +25,25 @@ body {
   align-items: center;
 }
 
-/* Player: a red circle */
+/* Player: a blue circle */
 #player {
   position: absolute;
-  width: 50px;
-  height: 50px;
-  background-color: mediumpurple;
+  width: 60px;
+  height: 60px;
+  background-color: royalblue; /* Changed to blue */
   border-radius: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Added shadow for depth */
   transition: transform 0.1s ease-out; /* Smooth movement transition */
+}
+
+/* Enemy: a red square */
+.enemy {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background-color: darkred; /* Changed to red */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* Joystick container fixed at bottom-left */
@@ -76,13 +84,39 @@ body {
 /* Guide text */
 #guidetext {
   font-size: 20px;
-  color: black;
+  color: white;
+  font-weight: bold;
   position: absolute;
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  z-index: 10; /* Ensure it's above the game area */
+  z-index: 10;
+
+  /* Clean black outline effect */
+  text-shadow: 
+    -1px -1px 0 black,  
+     1px -1px 0 black,  
+    -1px  1px 0 black,  
+     1px  1px 0 black;
+}
+
+/* Score display */
+#scoreDisplay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 40px;
+  color: white;
+  font-weight: bold;
+  z-index: 10;
+
+  /* Clean black outline effect */
+  text-shadow: 
+    -2px -2px 0 black,  
+     2px -2px 0 black,  
+    -2px  2px 0 black,  
+     2px  2px 0 black;
 }
 
 /* Responsive Design for small screens */

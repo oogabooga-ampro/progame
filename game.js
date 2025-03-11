@@ -3,28 +3,30 @@ function isMobileDevice() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
-// --- Existing Code ---
-// Get DOM elements
+// --- Get DOM elements ---
 const player = document.getElementById("player");
 const gameArea = document.getElementById("gameArea");
 const joystickContainer = document.getElementById("joystickContainer");
 const joystickBase = document.getElementById("joystickBase");
 const joystickStick = document.getElementById("joystickStick");
+const scoreDisplay = document.getElementById("scoreDisplay");
 
 // Joystick configuration
-const maxRadius = 50; // maximum displacement of the stick from center
-
-// Joystick center coordinates (will be computed)
+const maxRadius = 50; // Maximum displacement from center
 let joystickCenter = { x: 0, y: 0 };
-
-// Current joystick output (normalized vector)
 let joystickOutput = { x: 0, y: 0 };
 
 // Player position and speed
-let playerPos = { x: gameArea.clientWidth / 2, y: gameArea.clientHeight / 2 };
-const playerSpeed = 2; // Adjust for desired speed
+let playerPos = {
+  x: gameArea.clientWidth / 2,
+  y: gameArea.clientHeight / 2
+};
+const playerSpeed = 4; // Adjust for desired speed
 
-// Setup joystick center (based on the base element's position)
+// Score variable
+let score = 0;
+
+// Update joystick center (using joystickBase's bounding rect)
 function updateJoystickCenter() {
   const rect = joystickBase.getBoundingClientRect();
   joystickCenter = {
@@ -33,7 +35,7 @@ function updateJoystickCenter() {
   };
 }
 
-// Reset joystick stick to center
+// Reset joystick stick to center position
 function resetJoystick() {
   joystickStick.style.left = "50%";
   joystickStick.style.top = "50%";
@@ -55,21 +57,22 @@ function updatePlayer() {
   player.style.top = playerPos.y + "px";
 }
 
-// Game loop
+// Main game loop (only updates player and checks collisions)
 function gameLoop() {
   updatePlayer();
+  checkCollisions();
   requestAnimationFrame(gameLoop);
 }
 requestAnimationFrame(gameLoop);
 
-// Joystick interaction using pointer events
+// --- Joystick Pointer Events ---
 let activePointerId = null;
 
 function onPointerDown(e) {
   if (activePointerId === null) {
     activePointerId = e.pointerId;
     updateJoystickCenter();
-    onPointerMove(e); // Update position immediately
+    onPointerMove(e); // Update immediately
     joystickStick.setPointerCapture(activePointerId);
   }
 }
@@ -85,10 +88,11 @@ function onPointerMove(e) {
   const offsetX = Math.cos(angle) * distance;
   const offsetY = Math.sin(angle) * distance;
   
-  // Correct the style values by using template literals
+  // Update joystick stick position using CSS calc()
   joystickStick.style.left = `calc(50% + ${offsetX}px)`;
   joystickStick.style.top = `calc(50% + ${offsetY}px)`;
   
+  // Normalize the joystick output
   joystickOutput = {
     x: offsetX / maxRadius,
     y: offsetY / maxRadius
@@ -108,26 +112,19 @@ joystickStick.addEventListener("pointermove", onPointerMove);
 joystickStick.addEventListener("pointerup", onPointerUp);
 joystickStick.addEventListener("pointercancel", onPointerUp);
 
+// Prevent default touchmove on joystick container
 joystickContainer.addEventListener("touchmove", function(e) {
   e.preventDefault();
 }, { passive: false });
 
 // --- Keyboard Controls for Desktop ---
 function onKeyDown(e) {
-  let dx = 0;
-  let dy = 0;
+  let dx = 0, dy = 0;
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") dx = -1;
+  else if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") dx = 1;
   
-  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
-    dx = -1;
-  } else if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
-    dx = 1;
-  }
-  
-  if (e.key === "ArrowUp" || e.key.toLowerCase() === "w") {
-    dy = -1;
-  } else if (e.key === "ArrowDown" || e.key.toLowerCase() === "s") {
-    dy = 1;
-  }
+  if (e.key === "ArrowUp" || e.key.toLowerCase() === "w") dy = -1;
+  else if (e.key === "ArrowDown" || e.key.toLowerCase() === "s") dy = 1;
   
   playerPos.x += dx * playerSpeed * 5;
   playerPos.y += dy * playerSpeed * 5;
@@ -141,32 +138,58 @@ function onKeyDown(e) {
   player.style.top = playerPos.y + "px";
 }
 
-// Use the userAgent check to decide:
+// For desktop, hide joystick and use keyboard
 if (!isMobileDevice()) {
   joystickContainer.style.display = "none";
   document.addEventListener("keydown", onKeyDown);
 }
 
-// --- Anti-DevTools Code ---
-// This section prevents right-click and common DevTools shortcuts
-(function() {
-  // Disable right-click
-  document.addEventListener("contextmenu", function(e) {
-    e.preventDefault();
-  }, false);
+// --- Enemy Spawning ---
+let enemyCount = 0;
+const maxEnemies = 15; // Maximum number of enemies on screen
+
+function spawnEnemy() {
+  if (enemyCount < maxEnemies) {
+    const enemy = document.createElement("div");
+    enemy.classList.add("enemy");
+    enemy.style.width = "40px";
+    enemy.style.height = "40px";
+    enemy.style.backgroundColor = "red";
+    enemy.style.position = "absolute";
+    enemy.style.left = `${Math.random() * (gameArea.clientWidth - 50)}px`;
+    enemy.style.top = `${Math.random() * (gameArea.clientHeight - 50)}px`;
+    gameArea.appendChild(enemy);
+    enemyCount++;
+
+    // Click on enemy to remove and add score
+    enemy.addEventListener("click", () => {
+      enemy.remove();
+      score++;
+      scoreDisplay.textContent = `Score: ${score}`;
+      enemyCount--;
+    });
+  }
+}
+// Spawn enemy every 2 seconds
+setInterval(spawnEnemy, 1000);
+
+// --- Collision Detection ---
+function checkCollisions() {
+  const playerRect = player.getBoundingClientRect();
+  const enemies = document.querySelectorAll(".enemy");
   
-  // Block common DevTools key combinations
-  document.addEventListener("keydown", function(e) {
-    // F12
-    if (e.key === "F12" || e.keyCode === 123) {
-      e.preventDefault();
-      alert("yu lochitikz giv robuc");
+  enemies.forEach((enemy) => {
+    const enemyRect = enemy.getBoundingClientRect();
+    if (
+      playerRect.left < enemyRect.right &&
+      playerRect.right > enemyRect.left &&
+      playerRect.top < enemyRect.bottom &&
+      playerRect.bottom > enemyRect.top
+    ) {
+      enemy.remove();
+      score++;
+      scoreDisplay.textContent = `Score: ${score}`;
+      enemyCount--;
     }
-    // Ctrl+Shift+I, Ctrl+Shift+J, or Ctrl+U
-    if ((e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
-      (e.ctrlKey && e.key === "U")) {
-      e.preventDefault();
-      alert("yu lochitikz giv robuc");
-    }
-  }, true); // Capture events in the capturing phase
-})();
+  });
+}

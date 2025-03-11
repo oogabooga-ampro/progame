@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -6,13 +7,23 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <p id=guidetext> use WASD or arrow keys to move ur character, for mobile use joystick</p>
+  <p id="guidetext">Use WASD or arrow keys to move your character, for mobile use joystick</p>
+
   <!-- Game area -->
   <div id="gameArea">
-    <!-- Player element (a red circle) -->
+    <!-- Player element (a blue circle) -->
     <div id="player"></div>
-  </div>  <!-- Virtual joystick container -->  <div id="joystickContainer">
+  </div>
+
+  <!-- Score display -->
+  <div id="scoreDisplay">Score: 0</div>
+
+  <!-- Virtual joystick container -->
+  <div id="joystickContainer">
     <div id="joystickBase"></div>
     <div id="joystickStick"></div>
-  </div>  <script src="game.js"></script></body>
+  </div>
+
+  <script src="game.js"></script>
+</body>
 </html>
