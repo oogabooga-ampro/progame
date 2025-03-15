@@ -11,7 +11,7 @@ body {
   overflow: hidden;
   background: #f0f0f0;
   font-family: sans-serif;
-  user-select: none; /* Prevent text selection */
+  user-select: none;
 }
 
 /* Game area covers entire screen */
@@ -19,11 +19,11 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  background: lavender;
+  background: lightblue;
   display: flex;
   justify-content: center;
   align-items: center;
-  opacity: 0; /* Hidden by default */
+  opacity: 0;
   transition: opacity 0.5s ease;
 }
 
@@ -32,12 +32,12 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(10px); /* Blur the background */
+  backdrop-filter: blur(10px);
   z-index: 100;
   opacity: 1;
   transition: opacity 1s ease;
@@ -56,59 +56,158 @@ body {
 /* Start button */
 #startButton {
   font-size: 25px;
-  padding: 15px 30px;
-  background-color: green;
+  padding: 20px 40px;
+  background-color: limegreen;
   color: white;
-  border: none;
+  border: 4px solid darkgreen;
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-/* Start button hover effect */
 #startButton:hover {
   background-color: darkgreen;
 }
 
-/* Player: a blue circle */
+/* Player */
 #player {
   position: absolute;
   width: 60px;
   height: 60px;
   background-color: royalblue;
+  border: 3px solid darkblue;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   transition: transform 0.1s ease-out;
 }
 
-/* Enemy: a red square */
+/* Enemy */
 .enemy {
   position: absolute;
   width: 40px;
   height: 40px;
   background-color: red;
+  border: 3px solid darkred;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
-/* Bonus Enemy: a green square with pulsing effect */
-.bonusEnemy {
+/* Bonus Enemy */
+.uncommonEnemy {
   position: absolute;
   width: 50px;
   height: 50px;
   background-color: blueviolet;
+  border: 3px solid rebeccapurple;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  animation: pulse 0.8s infinite;
+  transition: background-color 0.3s ease;
 }
 
-/* Pulsing animation for bonus enemy */
-@keyframes pulse {
+/* Rare Enemy */
+.rareEnemy {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(45deg, mediumblue, royalblue, mediumblue);
+  border: 2px solid midnightblue;
+  box-shadow: 0 0 20px 10px rgba(50, 155, 255, 0.8);
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+  animation: pulseRare 1s ease-in-out infinite;
+}
+
+/* Pulsing animation for Rare enemy */
+@keyframes pulseRare {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Epic Cube (4th Cube) */
+.epicEnemy {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 3px solid darkgreen;
+  background: linear-gradient(45deg, green, limegreen, green);/* Initial gradient */
+  background-size: 400% 400%; /* Larger gradient to make the movement smooth */
+  box-shadow: 0 0 30px 10px darkgreen, 0 0 40px 10px forestgreen; /* Cool glowing effect */
+  animation: pulseCrimson 1.5s ease-in-out infinite, glowCrimson 2s ease-in-out infinite alternate, gradientMove 2s linear infinite; /* Apply gradient animation */
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 10%;
+}
+/* Moving gradient animation for epic enemy */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Pulsing animation for crimson enemy */
+@keyframes pulseCrimson {
   0% { transform: scale(1); }
   50% { transform: scale(1.2); }
   100% { transform: scale(1); }
 }
 
-/* Joystick container fixed at bottom-left */
+/* Glowing effect for crimson enemy */
+@keyframes glowCrimson {
+  0% { box-shadow: 0 0 30px 10px darkgreen, 0 0 40px 10px seagreen; }
+  33% { box-shadow: 0 0 40px 15px limegreen, 0 0 50px 15px seagreen; }
+  66% { box-shadow: 0 0 30px 10px darkgreen, 0 0 40px 10px seagreen; }
+  100% { box-shadow: 0 0 40px 15px limegreen, 0 0 50px 15px seagreen; }
+}
+
+/* Random collectible squares with gradient */
+.collectible {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(45deg, #ff7f50, #ff6347); /* Gradient effect */
+  background-size: 400% 400%; /* For smooth gradient movement */
+  box-shadow: 0 0 10px rgba(255, 99, 71, 0.7), 0 0 20px rgba(255, 99, 71, 0.5);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  animation: collectibleGlow 1s ease-in-out infinite, gradientMove 5s linear infinite; /* Combine glow and gradient movement */
+}
+
+.collectible:hover {
+  box-shadow: 0 0 20px rgba(255, 99, 71, 1), 0 0 30px rgba(255, 99, 71, 0.8);
+  transform: scale(1.1);
+}
+
+/* Pulsing glow effect for collectible squares */
+@keyframes collectibleGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 99, 71, 0.7), 0 0 20px rgba(255, 99, 71, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 99, 71, 1), 0 0 30px rgba(255, 99, 71, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(255, 99, 71, 0.7), 0 0 20px rgba(255, 99, 71, 0.5);
+  }
+}
+
+/* Moving gradient animation for collectible */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Joystick */
 #joystickContainer {
   position: fixed;
   bottom: 20px;
@@ -118,7 +217,6 @@ body {
   pointer-events: none;
 }
 
-/* Joystick base (the outer circle) */
 #joystickBase {
   position: absolute;
   width: 100%;
@@ -128,7 +226,6 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Joystick stick (the inner movable part) */
 #joystickStick {
   position: absolute;
   width: 50px;
@@ -145,7 +242,7 @@ body {
 
 /* Guide text */
 #guidetext {
-  font-size: 20px;
+  font-size: 25px;
   color: white;
   font-weight: bold;
   position: absolute;
@@ -159,31 +256,24 @@ body {
 
 /* Score display */
 #scoreDisplay {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 40px;
+  position: absolute; /* Position it absolutely */
+  top: 10px; /* Position it 10px from the top */
+  left: 10px; /* Position it 10px from the left */
+  font-size: 30px; /* Adjust to 30px or 40px as needed */
+  font-weight: bold; /* Make it bold */
   color: white;
-  font-weight: bold;
   z-index: 10;
-  text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black;
+  text-align: left; /* Align to the left */
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black; /* Bold shadow effect */
 }
 
-/* Responsive Design for small screens */
-@media (max-width: 480px) {
-  #joystickContainer {
-    width: 100px;
-    height: 100px;
-  }
-  #joystickBase {
-    width: 100%;
-    height: 100%;
-  }
-  #joystickStick {
-    width: 40px;
-    height: 40px;
-  }
-  #guidetext {
-    font-size: 18px;
-  }
+#anti-inspect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: transparent;
+    pointer-events: none; /* Prevents clicks */
 }

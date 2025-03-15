@@ -37,45 +37,39 @@ function toggleMusic() {
     musicButton.innerHTML = "🔇"; // Mute icon
   } else {
     music.play();
-    musicButton.innerHTML = "🔊"; // Unmute icon
+    musicButton.innerHTML = "🔈"; // Unmute icon
   }
   isMusicPlaying = !isMusicPlaying;
 }
 musicButton.addEventListener("click", toggleMusic);
 
 // --- Start Screen Logic ---
-// (Assumes your HTML includes a start screen with id="startScreen" and a button with id="startButton")
 const startScreen = document.getElementById("startScreen");
 const startButton = document.getElementById("startButton");
 startButton.addEventListener("click", startGame);
 
 function startGame() {
-  // Hide the start screen
   startScreen.style.display = "none";
-  // Show game area and player
   gameArea.style.display = "block";
-  gameArea.style.opacity = "1"; // Make the game area visible
+  gameArea.style.opacity = "1"; 
   player.style.display = "block";
   // Start music on game start
   music.play().catch((error) => console.log("Autoplay blocked:", error));
   isMusicPlaying = true;
-  // Center the player now that the game area is visible
   updatePlayerPosition();
-  // Start the game loop
   requestAnimationFrame(gameLoop);
 }
 
 // --- Game Logic and Joystick Controls ---
-const maxRadius = 50; // Maximum displacement from center
+const maxRadius = 50;
 let joystickCenter = { x: 0, y: 0 };
 let joystickOutput = { x: 0, y: 0 };
 
 let playerPos = { x: gameArea.clientWidth / 2, y: gameArea.clientHeight / 2 };
-const playerSpeed = 4; // Adjust for desired speed
+const playerSpeed = 4;
 let score = 0;
 
 function updatePlayerPosition() {
-  // Center the player in the game area
   playerPos.x = gameArea.clientWidth / 2 - player.clientWidth / 2;
   playerPos.y = gameArea.clientHeight / 2 - player.clientHeight / 2;
   player.style.left = playerPos.x + "px";
@@ -113,6 +107,82 @@ function gameLoop() {
 }
 requestAnimationFrame(gameLoop);
 
+// --- Enemy Spawning ---
+let enemyCount = 0;
+const maxEnemies = 50;
+
+function spawnEnemy() {
+  if (enemyCount < maxEnemies) {
+    const randomChance = Math.random();
+    let enemyType = "enemy";
+    let points = 1;
+    let size = 40;
+    
+    // Determine enemy type based on random chance:
+    if (randomChance < 1 / 30) {
+      enemyType = "epicEnemy"; // 4th Cube: Crimson Red Cube
+      points = 80;
+      size = 80;
+    } else if (randomChance < 1 / 15) {
+      enemyType = "rareEnemy"; // 3rd Cube: Rare enemy
+      points = 30;
+      size = 65;
+    } else if (randomChance < 1 / 4) {
+      enemyType = "uncommonEnemy"; // 2nd Cube: Bonus enemy
+      points = 8;
+      size = 50;
+    }
+    
+    const enemy = document.createElement("div");
+    enemy.classList.add(enemyType);
+    // Set size and position; CSS classes will control the visuals (animation, glow, etc.)
+    enemy.style.width = `${size}px`;
+    enemy.style.height = `${size}px`;
+    enemy.style.position = "absolute";
+    enemy.style.left = `${Math.random() * (gameArea.clientWidth - size)}px`;
+    enemy.style.top = `${Math.random() * (gameArea.clientHeight - size)}px`;
+    
+    gameArea.appendChild(enemy);
+    enemyCount++;
+  }
+}
+
+setInterval(spawnEnemy, 250);
+
+// --- Collision Detection ---
+function checkCollisions() {
+  const playerRect = player.getBoundingClientRect();
+  const enemies = document.querySelectorAll(".enemy, .uncommonEnemy, .rareEnemy, .epicEnemy");
+  
+  enemies.forEach((enemy) => {
+    const enemyRect = enemy.getBoundingClientRect();
+    if (
+      playerRect.left < enemyRect.right &&
+      playerRect.right > enemyRect.left &&
+      playerRect.top < enemyRect.bottom &&
+      playerRect.bottom > enemyRect.top
+    ) {
+      // Update score based on enemy type
+      if (enemy.classList.contains("uncommonEnemy")) {
+        score += 8;
+      } else if (enemy.classList.contains("rareEnemy")) {
+        score += 30;
+      } else if (enemy.classList.contains("epicEnemy")) {
+        score += 80;
+      } else {
+        score += 1; // Default enemy gives 1 point
+      }
+
+      // Update the score display
+      scoreDisplay.textContent = `Score: ${score}`;
+      
+      // Remove the enemy immediately after collision
+      enemy.remove();
+      enemyCount--;
+    }
+  });
+}
+
 // --- Joystick Pointer Events ---
 let activePointerId = null;
 
@@ -120,7 +190,7 @@ function onPointerDown(e) {
   if (activePointerId === null) {
     activePointerId = e.pointerId;
     updateJoystickCenter();
-    onPointerMove(e); // Update immediately
+    onPointerMove(e);
     joystickStick.setPointerCapture(activePointerId);
   }
 }
@@ -149,96 +219,30 @@ function onPointerUp(e) {
     joystickStick.releasePointerCapture(e.pointerId);
   }
 }
-
+ 
 joystickStick.addEventListener("pointerdown", onPointerDown);
 joystickStick.addEventListener("pointermove", onPointerMove);
 joystickStick.addEventListener("pointerup", onPointerUp);
 joystickStick.addEventListener("pointercancel", onPointerUp);
 
-joystickContainer.addEventListener("touchmove", function(e) {
-  e.preventDefault();
-}, { passive: false });
+// 1. Disable Right-Click
+document.addEventListener("contextmenu", (e) => e.preventDefault());
 
-// --- Keyboard Controls for Desktop ---
-function onKeyDown(e) {
-  let dx = 0, dy = 0;
-  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") dx = -1;
-  else if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") dx = 1;
-  
-  if (e.key === "ArrowUp" || e.key.toLowerCase() === "w") dy = -1;
-  else if (e.key === "ArrowDown" || e.key.toLowerCase() === "s") dy = 1;
-  
-  playerPos.x += dx * playerSpeed * 5;
-  playerPos.y += dy * playerSpeed * 5;
-  
-  const areaWidth = gameArea.clientWidth;
-  const areaHeight = gameArea.clientHeight;
-  playerPos.x = Math.max(0, Math.min(areaWidth - player.clientWidth, playerPos.x));
-  playerPos.y = Math.max(0, Math.min(areaHeight - player.clientHeight, playerPos.y));
-  
-  player.style.left = playerPos.x + "px";
-  player.style.top = playerPos.y + "px";
-}
-
-if (!isMobileDevice()) {
-  joystickContainer.style.display = "none";
-  document.addEventListener("keydown", onKeyDown);
-}
-
-// --- Enemy Spawning ---
-let enemyCount = 0;
-const maxEnemies = 15;
-
-function spawnEnemy() {
-  if (enemyCount < maxEnemies) {
-    const isBonus = Math.random() < 0.25;
-    const enemy = document.createElement("div");
-    if (isBonus) {
-      enemy.classList.add("bonusEnemy");
-      enemy.style.width = "50px";
-      enemy.style.height = "50px";
-    } else {
-      enemy.classList.add("enemy");
-      enemy.style.width = "40px";
-      enemy.style.height = "40px";
-    }
-    enemy.style.position = "absolute";
-    enemy.style.left = `${Math.random() * (gameArea.clientWidth - 50)}px`;
-    enemy.style.top = `${Math.random() * (gameArea.clientHeight - 50)}px`;
-    gameArea.appendChild(enemy);
-    enemyCount++;
-    enemy.addEventListener("click", () => {
-      enemy.remove();
-      score += isBonus ? 5 : 1;
-      scoreDisplay.textContent = `Score: ${score}`;
-      enemyCount--;
-    });
-  }
-}
-
-setInterval(spawnEnemy, 1200);
-
-// --- Collision Detection ---
-function checkCollisions() {
-  const playerRect = player.getBoundingClientRect();
-  const enemies = document.querySelectorAll(".enemy, .bonusEnemy");
-  enemies.forEach((enemy) => {
-    const enemyRect = enemy.getBoundingClientRect();
+// 2. Block DevTools Shortcuts
+document.onkeydown = function (e) {
     if (
-      playerRect.left < enemyRect.right &&
-      playerRect.right > enemyRect.left &&
-      playerRect.top < enemyRect.bottom &&
-      playerRect.bottom > enemyRect.top
+        e.keyCode == 123 || // F12
+        (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || // Ctrl + Shift + I or J
+        (e.ctrlKey && e.keyCode == 85) // Ctrl + U (View Source)
     ) {
-      enemy.remove();
-      score += enemy.classList.contains("bonusEnemy") ? 5 : 1;
-      scoreDisplay.textContent = `Score: ${score}`;
-      enemyCount--;
+        e.preventDefault();
     }
-  });
-}
+};
 
-// --- Start Music Automatically ---
-// This line will attempt to start music if the game is started via the start screen.
-music.play().catch((error) => console.log("Autoplay blocked:", error));
-isMusicPlaying = true;
+// 3. Detect DevTools Open and Redirect
+setInterval(function () {
+    if (window.outerHeight - window.innerHeight > 100 || window.outerWidth - window.innerWidth > 100) {
+        alert("Developer Tools Detected!");
+        window.location.href = "about:blank"; // Redirect user
+    }
+}, 1000);
